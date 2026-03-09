@@ -1,235 +1,282 @@
-# Claude Code Configuration
+# Claude Code Config
 
-Personal configuration files and custom agents for Claude Code CLI tool, emphasizing functional programming, clean code practices, and professional git workflows.
+Personal configuration files, custom agents, and slash commands for [Claude Code](https://claude.ai/code).
 
-## Overview
+Enforces functional programming standards, ticket-aware git workflows, and professional commit conventions. Designed to work on top of the [SuperClaude](https://github.com/NickAltmann/SuperClaude) framework.
 
-This repository contains customized standards, behavioral modes, and specialized agents that override Claude Code's default behaviors to enforce:
+---
 
-- **Functional Programming**: Immutability, pure functions, const-only declarations
-- **Professional Git Workflows**: Clean commits without AI references
-- **Self-Documenting Code**: Clear naming over comments
-- **Design Patterns**: SOLID principles and architectural best practices
+## Prerequisites
 
-## Repository Structure
+Before installing, make sure you have the following:
 
+**Required:**
+- [Claude Code](https://claude.ai/code) installed and authenticated (`claude --version`)
+- [Node.js](https://nodejs.org/) 18+ (Claude Code dependency)
+
+**Optional but recommended:**
+- [GitHub CLI](https://cli.github.com/) (`gh`) — required for `/sc:commit --pr` to create pull requests
+  ```bash
+  brew install gh    # macOS
+  gh auth login      # authenticate
+  ```
+
+---
+
+## How Claude Code loads configuration
+
+Claude Code looks for a `~/.claude/CLAUDE.md` file at startup. This file is the entry point for all global configuration. It can import other files using the `@filename` syntax:
+
+```markdown
+# CLAUDE.md
+@DEVELOPMENT_STANDARDS.md
+@RULES.md
+@MODE_Brainstorming.md
 ```
-claude-code-config/
-├── standards/          # Core development standards
-├── agents/             # Custom specialized agents
-├── modes/              # Behavioral mode configurations
-├── commands/sc/        # Custom slash commands / skills
-└── mcp-docs/          # MCP server integration guides
-```
+
+Each `@import` injects the referenced file's content into every session. This is how standards, modes, and behavioral overrides are applied globally across all projects.
+
+**Agents** (`~/.claude/agents/`) and **slash commands** (`~/.claude/commands/`) are loaded automatically by Claude Code — no imports needed in CLAUDE.md.
+
+---
 
 ## Installation
 
-### Quick Setup
+### Step 1 — Install SuperClaude (framework dependency)
 
-Copy all files to your Claude Code configuration directory:
+This config is designed to extend SuperClaude. Install it first:
 
 ```bash
-# Clone the repository
+git clone https://github.com/NickAltmann/SuperClaude.git /tmp/superclaude
+cd /tmp/superclaude
+./install.sh
+```
+
+This creates `~/.claude/CLAUDE.md` with the base framework imports and populates `~/.claude/commands/sc/` with the built-in skills.
+
+> If you prefer not to use SuperClaude, skip this step — the custom agents and `/sc:commit` command will still work. You will just need to create `~/.claude/CLAUDE.md` manually (see below).
+
+### Step 2 — Clone this repository
+
+```bash
 git clone https://github.com/rogercastaneda/claude-code-config.git
 cd claude-code-config
+```
 
-# Copy standards, modes, and MCP docs
-cp -r standards/* ~/.claude/
-cp -r modes/* ~/.claude/
-cp -r mcp-docs/* ~/.claude/
+### Step 3 — Copy files to `~/.claude/`
 
-# Copy custom agents
-cp -r agents/* ~/.claude/agents/
+```bash
+# Standards and behavioral overrides → go directly in ~/.claude/
+cp standards/* ~/.claude/
 
-# Copy custom slash commands
+# Behavioral modes → go directly in ~/.claude/
+cp modes/* ~/.claude/
+
+# MCP integration guides → go directly in ~/.claude/
+cp mcp-docs/* ~/.claude/
+
+# Custom agents → ~/.claude/agents/
+mkdir -p ~/.claude/agents
+cp agents/* ~/.claude/agents/
+
+# Custom slash commands → ~/.claude/commands/sc/
 mkdir -p ~/.claude/commands/sc
-cp -r commands/sc/* ~/.claude/commands/sc/
+cp commands/sc/* ~/.claude/commands/sc/
 ```
 
-### Custom Agent Setup
+### Step 4 — Register files in CLAUDE.md
 
-Agents are placed in `~/.claude/agents/` and are automatically available to Claude Code. No additional registration needed.
+Open `~/.claude/CLAUDE.md` and add imports for the files copied in Step 3. Add them in the appropriate section (or append at the end):
 
-### Slash Commands Setup
+```markdown
+# Development Standards
+@DEVELOPMENT_STANDARDS.md
+@OVERRIDES.md
+@PRINCIPLES.md
+@RULES.md
+@FLAGS.md
 
-Commands in `~/.claude/commands/sc/` are available as `/sc:<name>` in any Claude Code session.
+# Behavioral Modes
+@MODE_Brainstorming.md
+@MODE_Business_Panel.md
+@MODE_DeepResearch.md
+@MODE_Introspection.md
+@MODE_Orchestration.md
+@MODE_Task_Management.md
+@MODE_Token_Efficiency.md
 
-## Key Features
-
-### 🔴 Critical Overrides
-
-**Git Workflow Standards** (overrides Claude Code defaults):
-- ❌ NO "Co-Authored-By: Claude" in commits
-- ❌ NO "Generated with Claude Code" in PRs
-- ❌ NO markdown formatting or emojis in PR descriptions
-- ❌ NO technical file references in commit messages
-- ✅ Clean, professional commit messages focused on business value
-
-### 🟡 Functional Programming Standards
-
-**Mandatory Practices**:
-- `const`-only declarations (never `let` or `var`)
-- Immutable data structures
-- Pure functions and functional composition
-- Higher-order functions (map, filter, reduce)
-- Self-documenting code without comments
-
-### 🟢 Code Quality Standards
-
-- SOLID principles enforcement
-- Design pattern application
-- Separation of concerns
-- Testability through dependency injection
-
-## Files Overview
-
-### Standards Directory
-
-- **OVERRIDES.md**: System instruction overrides (highest priority)
-- **DEVELOPMENT_STANDARDS.md**: Comprehensive coding standards
-- **PRINCIPLES.md**: Core software engineering principles
-- **RULES.md**: Actionable behavioral rules
-- **FLAGS.md**: Mode activation triggers and flags
-
-### Agents Directory
-
-- **functional-code-expert.md**: Specialized agent for functional programming, code review, and architectural guidance
-- **git-ticket-agent.md**: Ticket-aware git operations agent for ClickUp and Jira/Bitbucket workflows
-
-### Commands Directory (`commands/sc/`)
-
-Custom slash commands that extend Claude Code:
-
-- **commit.md**: `/sc:commit` — ticket-aware commits, branches, and PRs with ClickUp/Jira integration
-
-### Modes Directory
-
-Behavioral modes that adapt Claude Code's approach to different tasks:
-- Brainstorming Mode
-- Deep Research Mode
-- Introspection Mode
-- Orchestration Mode
-- Task Management Mode
-- Token Efficiency Mode
-- Business Panel Mode
-
-### MCP Docs Directory
-
-Integration guides for MCP servers:
-- Context7 (documentation lookup)
-- Playwright (browser automation)
-- Sequential (structured reasoning)
-
-## Usage Examples
-
-### Enforcing Functional Patterns
-
-When working on JavaScript/TypeScript projects, the configuration automatically:
-- Flags `let` and `var` usage as critical errors
-- Suggests immutable alternatives to mutations
-- Recommends functional patterns over loops
-- Enforces pure function design
-
-### Professional Git Commits
-
-All git commits and PRs will follow:
+# MCP Documentation
+@MCP_Context7.md
+@MCP_Playwright.md
+@MCP_Sequential.md
 ```
-✅ CORRECT:
+
+> Files in `agents/` and `commands/` do **not** need to be imported in CLAUDE.md. They are picked up automatically.
+
+### Step 5 — Verify the installation
+
+Start a new Claude Code session and run:
+
+```
+/sc:help
+```
+
+You should see `/sc:commit` listed among the available commands. To verify agents are loaded:
+
+```
+/sc:agent
+```
+
+The `functional-code-expert` and `git-ticket-agent` should appear in the list.
+
+---
+
+## What's included
+
+### Standards (`standards/`)
+
+| File | Purpose |
+|------|---------|
+| `DEVELOPMENT_STANDARDS.md` | Functional programming rules, git commit standards, security rules |
+| `OVERRIDES.md` | Highest-priority rules that override Claude Code defaults |
+| `PRINCIPLES.md` | Core software engineering philosophy (SOLID, DRY, YAGNI) |
+| `RULES.md` | Actionable behavioral rules with priority levels |
+| `FLAGS.md` | Mode activation flags (`--think`, `--brainstorm`, etc.) |
+
+### Agents (`agents/`)
+
+Agents run as isolated subprocesses to keep the main context window clean.
+
+| Agent | Invoked by | Purpose |
+|-------|-----------|---------|
+| `functional-code-expert` | Claude automatically | Code review and refactoring with functional programming principles |
+| `git-ticket-agent` | `/sc:commit` | Ticket-aware branch/commit/PR creation for ClickUp and Jira |
+
+### Slash commands (`commands/sc/`)
+
+| Command | Usage |
+|---------|-------|
+| `/sc:commit` | Create ticket-prefixed commits, branches, and PRs |
+
+---
+
+## Key behaviors enforced
+
+### No auto-execution without approval
+
+Claude Code will **never** run these automatically — it will always propose and wait:
+
+- Git commits and pushes
+- Build commands (`npm run build`, `yarn build`, etc.)
+- Dev servers (`npm run dev`, `uvicorn`, etc.)
+- Package installs or migrations
+
+### Clean git commits
+
+No AI references, no Co-Authored-By lines, no markdown in PR descriptions:
+
+```
+✅ Correct commit:
 feat: implement user authentication system
 
-Adds JWT-based authentication with role-based access control.
-Users can now securely log in and access protected resources.
+✅ Correct PR description:
+Adds JWT-based authentication with role-based access control, allowing
+users to securely log in and access protected resources based on their role.
 
-❌ WRONG:
+❌ Wrong:
 ## Summary
-Implemented auth system
-
-### Changes
 - ✅ Added JWT support in src/auth/jwt.ts
-- ✅ Updated User model
-
 🤖 Generated with Claude Code
 ```
 
-### Ticket-Aware Git Workflow (`/sc:commit`)
+### Ticket-aware git workflow (`/sc:commit`)
 
-Use `/sc:commit` to create ticket-prefixed branches, commits, and PRs:
+Automatically formats branches, commits, and PRs with your ticket code.
 
-**ClickUp** (ticket format: `868guc790`):
+**ClickUp** (format: `868guc790`):
 ```
 Branch:  868guc790-implement-video-start-time
 Commit:  868guc790: implement video start time playback
-PR:      868guc790: implement video start time playback
+PR title: 868guc790: implement video start time playback
 
-        Adds the ability for videos to begin playback at a specific timestamp,
-        allowing content editors to configure where viewers start watching.
+PR body:
+Adds the ability for videos to begin playback at a specific timestamp,
+allowing content editors to configure where viewers start watching.
 
-        Ticket: https://app.clickup.com/t/868guc790
+Ticket: https://app.clickup.com/t/868guc790
 ```
 
-**Jira/Bitbucket** (ticket format: `PROJ-123`):
+**Jira/Bitbucket** (format: `PROJ-123`):
 ```
 Branch:  PROJ-123-fix-auth-session-expiry
 Commit:  PROJ-123: fix auth session expiry handling
-PR:      PROJ-123: fix auth session expiry handling
+PR title: PROJ-123: fix auth session expiry handling
 
-        Resolves an issue where user sessions expired earlier than expected,
-        causing users to be logged out unexpectedly during active use.
+PR body:
+Resolves an issue where user sessions expired earlier than expected,
+causing users to be logged out during active use.
 
-        Ticket: https://company.atlassian.net/browse/PROJ-123
+Ticket: https://company.atlassian.net/browse/PROJ-123
 ```
 
-The agent always shows a preview before executing any git operation.
+The agent detects the ticket code from the current branch name automatically. If not found, it asks. Always shows a preview before executing.
 
-### Explicit Approval Required
+**Usage:**
+```bash
+/sc:commit              # commit with ticket prefix
+/sc:commit --branch     # create a new ticket-prefixed branch
+/sc:commit --pr         # create a PR with ticket in title and plain description
+/sc:commit --branch --pr  # full flow: branch + commit + PR
+```
 
-Claude Code will **never** auto-execute these without your instruction:
-- Creating commits or pushing to remote
-- Running build or dev server commands
-- Installing packages or running migrations
+### Functional programming
 
-### Self-Documenting Code
+All code written or reviewed follows these rules:
 
-Code reviews automatically suggest:
 ```javascript
-// ❌ BEFORE (imperative with comments)
-let result = []; // stores filtered users
-for (let i = 0; i < users.length; i++) {
-  if (users[i].active) { // only active users
-    result.push(users[i]);
-  }
-}
-
-// ✅ AFTER (functional, self-documenting)
+// ✅ Correct
 const activeUsers = users.filter(user => user.active);
+const updateUser = (user, changes) => ({ ...user, ...changes });
+
+// ❌ Wrong
+let result = [];
+for (let i = 0; i < users.length; i++) {
+  if (users[i].active) result.push(users[i]);
+}
 ```
+
+- `const` only — `let` and `var` are flagged as critical issues
+- No mutations — always return new values
+- Pure functions — no side effects
+- Self-documenting names — no comments needed
+
+---
+
+## Global vs per-project configuration
+
+**Global** (`~/.claude/`): Rules that apply to every project — coding standards, git conventions, agents, slash commands. This is where everything in this repo goes.
+
+**Per-project** (`.claude/CLAUDE.md` in the project root): Project-specific overrides — tech stack, local file conventions, specific patterns for that codebase. Example:
+
+```markdown
+# .claude/CLAUDE.md (in your project root)
+This is a Next.js 14 app using App Router and Tailwind.
+Database: PostgreSQL via Prisma. All queries go in src/lib/db/.
+Run tests with: npm test
+```
+
+Per-project files take precedence over global ones when there's a conflict.
+
+---
 
 ## Customization
 
-All files in this repository are meant to be customized to your workflow. Key areas to modify:
+- **Add your own agents**: create a `.md` file in `~/.claude/agents/` with a YAML frontmatter block (`name`, `description`, `model`, `color`) followed by the agent's instructions.
+- **Add your own commands**: create a `.md` file in `~/.claude/commands/sc/` — it becomes available as `/sc:<filename>`.
+- **Adjust standards**: edit `~/.claude/DEVELOPMENT_STANDARDS.md` directly. Changes take effect in the next Claude Code session.
 
-1. **DEVELOPMENT_STANDARDS.md**: Adjust functional programming rules to your preferences
-2. **OVERRIDES.md**: Add project-specific overrides
-3. **Agents**: Create new specialized agents for your domain
-4. **Modes**: Add custom behavioral modes for your workflows
-
-## Philosophy
-
-This configuration enforces a philosophy of:
-
-- **Evidence over assumptions**: All claims must be verifiable
-- **Code over documentation**: Self-documenting code reduces documentation burden
-- **Efficiency over verbosity**: Clear, concise communication
-- **Quality over speed**: Maintain high standards even under pressure
+---
 
 ## License
 
-MIT License - Feel free to use and modify for your own projects.
-
-## Contributing
-
-This is a personal configuration repository, but feel free to fork and adapt to your needs. If you have suggestions for improvements, open an issue or PR.
-
-## Acknowledgments
-
-Built for use with [Claude Code](https://claude.ai/code) by Anthropic.
+MIT — fork and adapt freely.
