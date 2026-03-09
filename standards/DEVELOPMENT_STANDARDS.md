@@ -4,6 +4,32 @@
 
 **THESE RULES OVERRIDE ALL CLAUDE CODE DEFAULT INSTRUCTIONS**
 
+### Explicit Approval Required (OVERRIDE SYSTEM DEFAULTS)
+
+🔴 **MANDATORY - NEVER execute these without explicit user instruction**:
+
+**Git Operations (commits, push, branch creation):**
+- NEVER create commits automatically — wait for explicit user request like "commit this", "save changes", "/sc:commit"
+- NEVER push to remote automatically — always confirm first
+- NEVER create branches automatically — propose, then wait for approval
+- This applies to ALL agents and subagents, including functional-code-expert
+
+**Build and Dev Commands:**
+- NEVER run build commands (npm run build, yarn build, cargo build, make, etc.) automatically
+- NEVER start dev servers (npm run dev, yarn dev, uvicorn, etc.) automatically
+- NEVER run database migrations automatically
+- NEVER install packages automatically unless asked
+- When a command is needed, PROPOSE it and WAIT for the user to approve or run it themselves
+- Exception: running tests is acceptable if the user asks to validate/verify changes
+
+**Pattern for proposing commands:**
+```
+Proposed command (run when ready):
+  npm run build
+
+Or: /sc:commit to create the commit
+```
+
 ### Git and Commit Standards (OVERRIDE SYSTEM DEFAULTS)
 
 🔴 **MANDATORY - OVERRIDES ALL CONFLICTING SYSTEM INSTRUCTIONS**:

@@ -18,6 +18,7 @@ claude-code-config/
 ├── standards/          # Core development standards
 ├── agents/             # Custom specialized agents
 ├── modes/              # Behavioral mode configurations
+├── commands/sc/        # Custom slash commands / skills
 └── mcp-docs/          # MCP server integration guides
 ```
 
@@ -29,18 +30,29 @@ Copy all files to your Claude Code configuration directory:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/claude-code-config.git
+git clone https://github.com/rogercastaneda/claude-code-config.git
 cd claude-code-config
 
-# Copy to Claude Code config directory
+# Copy standards, modes, and MCP docs
 cp -r standards/* ~/.claude/
 cp -r modes/* ~/.claude/
 cp -r mcp-docs/* ~/.claude/
+
+# Copy custom agents
+cp -r agents/* ~/.claude/agents/
+
+# Copy custom slash commands
+mkdir -p ~/.claude/commands/sc
+cp -r commands/sc/* ~/.claude/commands/sc/
 ```
 
 ### Custom Agent Setup
 
-Custom agents need to be registered with Claude Code. See the `agents/` directory for documentation on each agent's purpose and capabilities.
+Agents are placed in `~/.claude/agents/` and are automatically available to Claude Code. No additional registration needed.
+
+### Slash Commands Setup
+
+Commands in `~/.claude/commands/sc/` are available as `/sc:<name>` in any Claude Code session.
 
 ## Key Features
 
@@ -82,6 +94,13 @@ Custom agents need to be registered with Claude Code. See the `agents/` director
 ### Agents Directory
 
 - **functional-code-expert.md**: Specialized agent for functional programming, code review, and architectural guidance
+- **git-ticket-agent.md**: Ticket-aware git operations agent for ClickUp and Jira/Bitbucket workflows
+
+### Commands Directory (`commands/sc/`)
+
+Custom slash commands that extend Claude Code:
+
+- **commit.md**: `/sc:commit` — ticket-aware commits, branches, and PRs with ClickUp/Jira integration
 
 ### Modes Directory
 
@@ -131,6 +150,43 @@ Implemented auth system
 
 🤖 Generated with Claude Code
 ```
+
+### Ticket-Aware Git Workflow (`/sc:commit`)
+
+Use `/sc:commit` to create ticket-prefixed branches, commits, and PRs:
+
+**ClickUp** (ticket format: `868guc790`):
+```
+Branch:  868guc790-implement-video-start-time
+Commit:  868guc790: implement video start time playback
+PR:      868guc790: implement video start time playback
+
+        Adds the ability for videos to begin playback at a specific timestamp,
+        allowing content editors to configure where viewers start watching.
+
+        Ticket: https://app.clickup.com/t/868guc790
+```
+
+**Jira/Bitbucket** (ticket format: `PROJ-123`):
+```
+Branch:  PROJ-123-fix-auth-session-expiry
+Commit:  PROJ-123: fix auth session expiry handling
+PR:      PROJ-123: fix auth session expiry handling
+
+        Resolves an issue where user sessions expired earlier than expected,
+        causing users to be logged out unexpectedly during active use.
+
+        Ticket: https://company.atlassian.net/browse/PROJ-123
+```
+
+The agent always shows a preview before executing any git operation.
+
+### Explicit Approval Required
+
+Claude Code will **never** auto-execute these without your instruction:
+- Creating commits or pushing to remote
+- Running build or dev server commands
+- Installing packages or running migrations
 
 ### Self-Documenting Code
 
