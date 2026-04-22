@@ -252,6 +252,56 @@ for (let i = 0; i < users.length; i++) {
 
 ---
 
+## MCPs & Plugins
+
+### MCP servers
+
+Configure via `claude mcp add -s user` or editing `~/.claude.json`.
+
+| MCP | Command | Purpose |
+|-----|---------|---------|
+| `token-savior` | `uvx --from "token-savior-recall[mcp]" token-savior` | Codebase analysis, semantic memory, token reduction |
+| `context7` | `npx -y @upstash/context7-mcp` | Official library documentation |
+| `sequential-thinking` | `npx -y @modelcontextprotocol/server-sequential-thinking` | Structured multi-step reasoning |
+| `playwright` | `npx -y @playwright/mcp@latest` | Browser automation and E2E testing |
+| `chrome-devtools` | `npx -y chrome-devtools-mcp@latest` | Chrome DevTools automation |
+
+```bash
+claude mcp add token-savior -s user -- uvx --from "token-savior-recall[mcp]" token-savior
+```
+
+#### Disable Google MCPs
+
+Claude Code ships with Gmail, Google Calendar, and Google Drive MCPs pre-configured. Disable them in `~/.claude.json` to avoid constant auth prompts:
+
+```json
+"disabledMcpServers": [
+  "claude.ai Gmail",
+  "claude.ai Google Calendar",
+  "claude.ai Google Drive"
+]
+```
+
+### Plugins
+
+| Plugin | Source | Purpose |
+|--------|--------|---------|
+| `engram@engram` | official marketplace | Persistent memory across sessions |
+| `caveman@caveman` | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
+
+```bash
+# engram
+claude plugin install engram@engram
+
+# caveman
+claude plugin marketplace add JuliusBrussee/caveman
+claude plugin install caveman@caveman
+```
+
+Caveman activates automatically each session. Switch modes with `/caveman lite`, `/caveman ultra`, or `stop caveman`.
+
+---
+
 ## Global vs per-project configuration
 
 **Global** (`~/.claude/`): Rules that apply to every project — coding standards, git conventions, agents, slash commands. This is where everything in this repo goes.
