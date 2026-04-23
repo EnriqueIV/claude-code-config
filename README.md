@@ -110,7 +110,6 @@ Open `~/.claude/CLAUDE.md` and add imports for the files copied in Step 3. Add t
 @MCP_Playwright.md
 @MCP_Sequential.md
 @MCP_Serena.md
-@MCP_Tavily.md
 @MCP_TokenSavior.md
 @MCP_Engram.md
 @MCP_Caveman.md
@@ -271,7 +270,6 @@ Configure via `claude mcp add -s user` or editing `~/.claude.json`.
 | `playwright` | `npx -y @playwright/mcp@latest` | Browser automation and E2E testing |
 | `chrome-devtools` | `npx -y chrome-devtools-mcp@latest` | Chrome DevTools automation |
 | `serena` | see [serena docs](https://github.com/oraios/serena) | Semantic code navigation, symbol operations, session persistence |
-| `tavily` | `npx -y tavily-mcp@0.1.4` | Web search and real-time information retrieval |
 
 ```bash
 claude mcp add token-savior -s user -- uvx --from "token-savior-recall[mcp]" token-savior
