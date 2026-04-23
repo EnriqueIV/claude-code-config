@@ -161,6 +161,18 @@ Actionable rules for enhanced Claude Code framework operation.
 ✅ **Right**: Use MultiEdit for 3+ file changes, parallel Read calls  
 ❌ **Wrong**: Sequential Edit calls, bash grep instead of Grep tool
 
+## Command Path Usage
+**Priority**: 🟡 **Triggers**: Running shell commands, git operations, file access
+
+- **Current project = relative paths**: When working inside the active project directory, use relative paths or bare commands — never repeat the full absolute path in every command
+- **Other projects = absolute paths**: Use absolute paths ONLY when accessing files or running commands in a different project/directory than the current working directory
+- **git commands**: Run bare (`git status`, `git diff`) — not `git -C /full/path/to/project status`
+- **No redundant cd chains**: Don't prepend `cd /long/path &&` to every command when already in that directory
+
+✅ **Right** (in bonzzu-contractor-portal): `git status`, `pnpm run dev`, `cat src/App.tsx`  
+❌ **Wrong**: `git -C /Users/roger/git/bonzzu/hub/bonzzu-contractor-portal status`  
+❌ **Wrong**: `cd /Users/roger/git/bonzzu/hub/bonzzu-contractor-portal && pnpm run dev`
+
 ## File Organization
 **Priority**: 🟡 **Triggers**: File creation, project structuring, documentation
 
