@@ -72,7 +72,7 @@ cp standards/* ~/.claude/
 # Behavioral modes → go directly in ~/.claude/
 cp modes/* ~/.claude/
 
-# MCP integration guides → go directly in ~/.claude/
+# MCP integration guides (including engram, caveman, token-savior, serena, tavily) → go directly in ~/.claude/
 cp mcp-docs/* ~/.claude/
 
 # Custom agents → ~/.claude/agents/
@@ -109,6 +109,11 @@ Open `~/.claude/CLAUDE.md` and add imports for the files copied in Step 3. Add t
 @MCP_Context7.md
 @MCP_Playwright.md
 @MCP_Sequential.md
+@MCP_Serena.md
+@MCP_Tavily.md
+@MCP_TokenSavior.md
+@MCP_Engram.md
+@MCP_Caveman.md
 ```
 
 > Files in `agents/` and `commands/` do **not** need to be imported in CLAUDE.md. They are picked up automatically.
@@ -265,6 +270,8 @@ Configure via `claude mcp add -s user` or editing `~/.claude.json`.
 | `sequential-thinking` | `npx -y @modelcontextprotocol/server-sequential-thinking` | Structured multi-step reasoning |
 | `playwright` | `npx -y @playwright/mcp@latest` | Browser automation and E2E testing |
 | `chrome-devtools` | `npx -y chrome-devtools-mcp@latest` | Chrome DevTools automation |
+| `serena` | see [serena docs](https://github.com/oraios/serena) | Semantic code navigation, symbol operations, session persistence |
+| `tavily` | `npx -y tavily-mcp@0.1.4` | Web search and real-time information retrieval |
 
 ```bash
 claude mcp add token-savior -s user -- uvx --from "token-savior-recall[mcp]" token-savior
