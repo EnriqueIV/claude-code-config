@@ -141,8 +141,10 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Branch for Experiments**: Use branches to safely test different approaches
 - **Clean History**: Use descriptive commit messages, avoid "fix", "update", "changes"
 - **Non-Destructive Workflow**: Always preserve ability to rollback changes
+- **Ticket-Aware Git**: Use `/sc:commit` for ALL branch/commit/PR work tied to ClickUp or Jira tickets
 
-✅ **Right**: `git checkout -b feature/auth` → work → commit → PR  
+✅ **Right**: `/sc:commit` when ticket exists → `868guc790: add export endpoint`  
+✅ **Right**: conventional commits when no ticket → `feat: add export endpoint`  
 ❌ **Wrong**: Work directly on main/master branch  
 **Detection**: `git branch` should show feature branch, not main/master
 

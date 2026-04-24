@@ -14,7 +14,9 @@
 
 **ALWAYS:**
 - Use clean, professional commit messages
-- Follow conventional commits format (feat:, fix:, refactor:, etc.)
+- Follow commit format priority:
+  1. **Ticket exists** → use `/sc:commit` → `{ticket}: {description}` (e.g. `868guc790: add export endpoint`)
+  2. **No ticket** → conventional commits → `feat:`, `fix:`, `refactor:`, etc.
 - Focus on the "why" not the "what"
 - Keep messages concise and business-focused
 

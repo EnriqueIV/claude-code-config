@@ -155,14 +155,17 @@ claude implement cart logic using functional composition
 - **NO Claude Code References**: NEVER include "Generated with Claude Code" or similar references in commit messages
 - **NO Co-Authored-By Claude**: NEVER add "Co-Authored-By: Claude" lines to commits
 - **Clean Commit Messages**: Commit messages should be professional, concise, and focused on the actual changes
-- **Conventional Commits**: Follow conventional commit format when appropriate (feat:, fix:, refactor:, etc.)
+- **Use `/sc:commit`**: For all ticket-linked work (ClickUp/Jira) — it handles branch, commit, and PR with correct format
+- **Commit format priority**:
+  1. **Ticket exists** → `/sc:commit` → `{ticket}: {description}` (e.g. `868guc790: add export endpoint`)
+  2. **No ticket** → conventional commits → `feat:`, `fix:`, `refactor:`, etc.
 - **Focus on WHY**: Commit messages should explain the reasoning behind changes, not just what changed
 
 **Examples**:
 ```
-✅ RIGHT: "feat: implement user authentication with JWT tokens"
-✅ RIGHT: "fix: resolve race condition in payment processing"
-✅ RIGHT: "refactor: migrate to functional patterns for better immutability"
+✅ RIGHT (with ticket): "868guc790: implement user authentication with JWT tokens"
+✅ RIGHT (no ticket):   "feat: implement user authentication with JWT tokens"
+✅ RIGHT (no ticket):   "fix: resolve race condition in payment processing"
 ❌ WRONG: "Add feature 🤖 Generated with Claude Code"
 ❌ WRONG: "Fix bug\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ❌ WRONG: Any commit message containing Claude Code references
