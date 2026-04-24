@@ -45,3 +45,10 @@ Use when:
 | `claude-mem:do` | Execute a plan with subagents |
 | `claude-mem:knowledge-agent` | Build/query knowledge base from observations |
 | `claude-mem:timeline-report` | Project history narrative |
+
+## Installation
+
+```bash
+/plugin marketplace add thedotmack/claude-mem
+/plugin install claude-mem
+```
