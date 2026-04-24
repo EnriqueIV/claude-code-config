@@ -72,7 +72,7 @@ cp standards/* ~/.claude/
 # Behavioral modes → go directly in ~/.claude/
 cp modes/* ~/.claude/
 
-# MCP integration guides (including engram, caveman, token-savior, serena, tavily) → go directly in ~/.claude/
+# MCP integration guides (engram, claude-mem, caveman, token-savior, serena, etc.) → go directly in ~/.claude/
 cp mcp-docs/* ~/.claude/
 
 # Custom agents → ~/.claude/agents/
@@ -106,13 +106,14 @@ Open `~/.claude/CLAUDE.md` and add imports for the files copied in Step 3. Add t
 @MODE_Token_Efficiency.md
 
 # MCP Documentation
+@MCP_Caveman.md
+@MCP_ClaudeMem.md
 @MCP_Context7.md
+@MCP_Engram.md
 @MCP_Playwright.md
 @MCP_Sequential.md
 @MCP_Serena.md
 @MCP_TokenSavior.md
-@MCP_Engram.md
-@MCP_Caveman.md
 ```
 
 > Files in `agents/` and `commands/` do **not** need to be imported in CLAUDE.md. They are picked up automatically.
@@ -291,12 +292,19 @@ Claude Code ships with Gmail, Google Calendar, and Google Drive MCPs pre-configu
 
 | Plugin | Source | Purpose |
 |--------|--------|---------|
-| `engram@engram` | official marketplace | Persistent memory across sessions |
+| `engram@engram` | official marketplace | Persistent memory across sessions — saves decisions, bugs, conventions |
+| `claude-mem@thedotmack` | [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | Codebase exploration via AST + planning skills (`smart-explore`, `make-plan`, `do`) |
 | `caveman@caveman` | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
+
+> **engram vs claude-mem**: engram stores facts (memory), claude-mem navigates code (exploration). They complement each other.
 
 ```bash
 # engram
 claude plugin install engram@engram
+
+# claude-mem
+claude plugin marketplace add thedotmack/claude-mem
+claude plugin install claude-mem@thedotmack
 
 # caveman
 claude plugin marketplace add JuliusBrussee/caveman
