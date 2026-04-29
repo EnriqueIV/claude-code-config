@@ -164,15 +164,16 @@ Actionable rules for enhanced Claude Code framework operation.
 ❌ **Wrong**: Sequential Edit calls, bash grep instead of Grep tool
 
 ## Command Path Usage
-**Priority**: 🟡 **Triggers**: Running shell commands, git operations, file access
+**Priority**: 🔴 **Triggers**: Running shell commands, git operations, file access
 
-- **Current project = relative paths**: When working inside the active project directory, use relative paths or bare commands — never repeat the full absolute path in every command
-- **Other projects = absolute paths**: Use absolute paths ONLY when accessing files or running commands in a different project/directory than the current working directory
-- **git commands**: Run bare (`git status`, `git diff`) — not `git -C /full/path/to/project status`
+- **Current project = bare commands**: When the working directory IS the project, run commands bare — no absolute paths, no `-C /path`, no `cd /path &&`
+- **Other projects = absolute paths**: Use absolute paths ONLY when accessing a DIFFERENT project/directory than the current working directory
+- **git commands**: Run bare (`git status`, `git diff`) — NEVER `git -C /full/path/to/project status`
 - **No redundant cd chains**: Don't prepend `cd /long/path &&` to every command when already in that directory
+- **Trust the shell's cwd**: The shell is already in the right directory — act accordingly
 
-✅ **Right** (in bonzzu-contractor-portal): `git status`, `pnpm run dev`, `cat src/App.tsx`  
-❌ **Wrong**: `git -C /Users/roger/git/bonzzu/hub/bonzzu-contractor-portal status`  
+✅ **Right** (in claude-code-config): `git diff --stat`, `git status`, `cat RULES.md`  
+❌ **Wrong**: `git -C /Users/roger/git/claude-code-config diff --stat`  
 ❌ **Wrong**: `cd /Users/roger/git/bonzzu/hub/bonzzu-contractor-portal && pnpm run dev`
 
 ## File Organization

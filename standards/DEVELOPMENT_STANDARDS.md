@@ -13,6 +13,8 @@
 - NEVER push to remote automatically — always confirm first
 - NEVER create branches automatically — propose, then wait for approval
 - This applies to ALL agents and subagents, including functional-code-expert
+- **After making changes: STOP. Report what changed. Wait for user to confirm results look correct. Do NOT suggest, propose, or mention committing until user explicitly asks.**
+- Correct ending after changes: "Done. Changed X, Y, Z." — then stop. Wrong: "Done! Want me to commit this?"
 
 **Build and Dev Commands:**
 - NEVER run build commands (npm run build, yarn build, cargo build, make, etc.) automatically

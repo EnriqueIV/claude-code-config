@@ -83,6 +83,16 @@ cp agents/* ~/.claude/agents/
 mkdir -p ~/.claude/commands/sc
 cp commands/sc/* ~/.claude/commands/sc/
 
+# Root-level commands → ~/.claude/commands/
+cp commands/*.md ~/.claude/commands/ 2>/dev/null || true
+
+# Skills → ~/.claude/skills/
+for dir in skills/*/; do
+  skill_name=$(basename "$dir")
+  mkdir -p ~/.claude/skills/"$skill_name"
+  cp "$dir"* ~/.claude/skills/"$skill_name"/
+done
+
 # Statusline script → ~/.claude/
 cp scripts/statusline-command.sh ~/.claude/
 chmod +x ~/.claude/statusline-command.sh
@@ -133,7 +143,24 @@ Open `~/.claude/CLAUDE.md` and add imports for the files copied in Step 3. Add t
 
 > Files in `agents/` and `commands/` do **not** need to be imported in CLAUDE.md. They are picked up automatically.
 
-### Step 5 — Verify the installation
+### Step 5 — Install gentle-ai plugins (optional but recommended)
+
+gentle-ai adds persistent memory (engram), codebase exploration (claude-mem), and compressed communication (caveman):
+
+```bash
+# engram — persistent memory across sessions
+claude plugin install engram@engram
+
+# claude-mem — token-efficient codebase exploration
+claude plugin marketplace add thedotmack/claude-mem
+claude plugin install claude-mem@thedotmack
+
+# caveman — ultra-compressed communication mode
+claude plugin marketplace add JuliusBrussee/caveman
+claude plugin install caveman@caveman
+```
+
+### Step 6 — Verify the installation
 
 Start a new Claude Code session and run:
 
@@ -149,6 +176,16 @@ You should see `/sc:commit` listed among the available commands. To verify agent
 
 The `functional-code-expert` and `git-ticket-agent` should appear in the list.
 
+### Step 7 — Bootstrap each new project
+
+At the start of each new project, run:
+
+```
+/init-project
+```
+
+This initializes gentle-ai for that project: detects the stack, builds the skill registry (so rules are injected into sub-agents), and persists critical workflow rules to Engram memory. Run it once per project.
+
 ---
 
 ## What's included
@@ -162,6 +199,14 @@ The `functional-code-expert` and `git-ticket-agent` should appear in the list.
 | `PRINCIPLES.md` | Core software engineering philosophy (SOLID, DRY, YAGNI) |
 | `RULES.md` | Actionable behavioral rules with priority levels |
 | `FLAGS.md` | Mode activation flags (`--think`, `--brainstorm`, etc.) |
+
+### Skills (`skills/`)
+
+Skills are picked up by `/skill-registry` and their compact rules get injected into every sub-agent. This is the primary enforcement mechanism for global rules.
+
+| Skill | Purpose |
+|-------|---------|
+| `project-conventions` | Enforces commit flow (`/sc:commit` only), bare commands (no absolute paths), and post-change behavior (no proactive commit suggestions) |
 
 ### Agents (`agents/`)
 
@@ -178,11 +223,19 @@ Agents run as isolated subprocesses to keep the main context window clean.
 |------|---------|
 | `statusline-command.sh` | Two-line status bar: model + git branch + 5h rate limit + token count on line 1; context window bar + cost + duration on line 2 |
 
-### Slash commands (`commands/sc/`)
+### Slash commands
+
+**`commands/sc/`** (invoked as `/sc:<name>`):
 
 | Command | Usage |
 |---------|-------|
 | `/sc:commit` | Create ticket-prefixed commits, branches, and PRs |
+
+**`commands/`** (invoked as `/<name>`):
+
+| Command | Usage |
+|---------|-------|
+| `/init-project` | Bootstrap gentle-ai for a new project — run once per project |
 
 ---
 
@@ -196,6 +249,24 @@ Claude Code will **never** run these automatically — it will always propose an
 - Build commands (`npm run build`, `yarn build`, etc.)
 - Dev servers (`npm run dev`, `uvicorn`, etc.)
 - Package installs or migrations
+
+After completing changes, Claude stops and reports what changed. It does **not** suggest committing. You request it explicitly.
+
+### Bare commands — no absolute paths
+
+When working inside a project directory, Claude runs commands bare:
+
+```bash
+# ✅ Correct
+git diff --stat
+git status
+
+# ❌ Wrong
+git -C /Users/roger/git/my-project diff --stat
+cd /Users/roger/git/my-project && git status
+```
+
+The shell is already in the right directory — no path repetition needed.
 
 ### Clean git commits
 
@@ -340,7 +411,7 @@ Caveman activates automatically each session. Switch modes with `/caveman lite`,
 
 **Global** (`~/.claude/`): Rules that apply to every project — coding standards, git conventions, agents, slash commands. This is where everything in this repo goes.
 
-**Per-project** (`.claude/CLAUDE.md` in the project root): Project-specific overrides — tech stack, local file conventions, specific patterns for that codebase. Example:
+**Per-project** (`.claude/CLAUDE.md` in the project root): Project-specific overrides — tech stack, local file conventions, specific patterns for that codebase. Run `/init-project` at the start of each new project to bootstrap Engram memory and the skill registry for that specific codebase. Example:
 
 ```markdown
 # .claude/CLAUDE.md (in your project root)
