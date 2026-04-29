@@ -82,6 +82,21 @@ cp agents/* ~/.claude/agents/
 # Custom slash commands → ~/.claude/commands/sc/
 mkdir -p ~/.claude/commands/sc
 cp commands/sc/* ~/.claude/commands/sc/
+
+# Statusline script → ~/.claude/
+cp scripts/statusline-command.sh ~/.claude/
+chmod +x ~/.claude/statusline-command.sh
+```
+
+Then add to `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  }
+}
 ```
 
 ### Step 4 — Register files in CLAUDE.md
@@ -156,6 +171,12 @@ Agents run as isolated subprocesses to keep the main context window clean.
 |-------|-----------|---------|
 | `functional-code-expert` | Claude automatically | Code review and refactoring with functional programming principles |
 | `git-ticket-agent` | `/sc:commit` | Ticket-aware branch/commit/PR creation for ClickUp and Jira |
+
+### Scripts (`scripts/`)
+
+| File | Purpose |
+|------|---------|
+| `statusline-command.sh` | Two-line status bar: model + git branch + 5h rate limit + token count on line 1; context window bar + cost + duration on line 2 |
 
 ### Slash commands (`commands/sc/`)
 
