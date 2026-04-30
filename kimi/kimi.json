@@ -1,0 +1,19 @@
+{
+  "work_dirs": [
+    {
+      "path": "/Users/roger/git/meditracker/meditracker-mobile",
+      "kaos": "local",
+      "last_session_id": null
+    },
+    {
+      "path": "/Users/roger/git/bonzzu/hub/bonzzu-contractor-portal",
+      "kaos": "local",
+      "last_session_id": "b52b4d74-b6f6-44c7-a3b0-aa140a333a31"
+    },
+    {
+      "path": "/Users/roger/git/claude-code-config",
+      "kaos": "local",
+      "last_session_id": null
+    }
+  ]
+}

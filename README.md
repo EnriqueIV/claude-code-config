@@ -190,6 +190,18 @@ This initializes gentle-ai for that project: detects the stack, builds the skill
 
 ## What's included
 
+### Kimi (`kimi/`)
+
+Configuration files for [Kimi Code CLI](https://kimi.com/code) — the same ecosystem of rules, MCPs, and skills applied to the Kimi agent.
+
+| File | Purpose |
+|------|---------|
+| `config.toml` | Global settings: model (k2.6), thinking mode, loop control, background tasks, services |
+| `mcp.json` | MCP servers: engram, context7, rovo |
+| `kimi.json` | Work directory registry |
+
+See [`kimi/README.md`](kimi/README.md) for full details and installation instructions.
+
 ### Standards (`standards/`)
 
 | File | Purpose |
