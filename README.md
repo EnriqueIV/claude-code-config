@@ -1,18 +1,30 @@
-# Claude Code Config
+# AI Pair Programming Config
 
-Personal configuration files, custom agents, and slash commands for [Claude Code](https://claude.ai/code).
+Personal configuration for [Claude Code](https://claude.ai/code) and [Kimi Code CLI](https://kimi.com/code).
 
-Enforces functional programming standards, ticket-aware git workflows, and professional commit conventions. Designed to work on top of the [SuperClaude](https://github.com/NickAltmann/SuperClaude) framework.
+Enforces functional programming standards, ticket-aware git workflows, and professional commit conventions across both assistants. The Claude Code side is designed to work on top of the [SuperClaude](https://github.com/NickAltmann/SuperClaude) framework.
+
+> **Why both?** Claude Code excels at deep reasoning and agentic workflows. Kimi k2.6 brings a 262K context window and fast thinking-mode streaming. This repo keeps both tools configured with the same standards so you get consistent behavior regardless of which one you open.
+
+---
+
+## What's included
+
+| Assistant | Folder | Entry point |
+|-----------|--------|-------------|
+| **Claude Code** | `standards/`, `modes/`, `agents/`, `commands/`, `skills/` | `~/.claude/CLAUDE.md` |
+| **Kimi Code CLI** | `kimi/` | `~/.kimi/config.toml` + `~/.kimi/mcp.json` |
+
+Shared standards (functional programming, git conventions, MCPs) are applied to both. Claude-specific extras (agents, slash commands, gentle-ai plugins) live in the root folders. Kimi-specific config lives under `kimi/`.
 
 ---
 
 ## Prerequisites
 
-Before installing, make sure you have the following:
-
 **Required:**
 - [Claude Code](https://claude.ai/code) installed and authenticated (`claude --version`)
-- [Node.js](https://nodejs.org/) 18+ (Claude Code dependency)
+- [Kimi Code CLI](https://kimi.com/code) installed and authenticated (`kimi --version`)
+- [Node.js](https://nodejs.org/) 18+ (dependency for both)
 
 **Optional but recommended:**
 - [GitHub CLI](https://cli.github.com/) (`gh`) — required for `/sc:commit --pr` to create pull requests
@@ -23,28 +35,11 @@ Before installing, make sure you have the following:
 
 ---
 
-## How Claude Code loads configuration
-
-Claude Code looks for a `~/.claude/CLAUDE.md` file at startup. This file is the entry point for all global configuration. It can import other files using the `@filename` syntax:
-
-```markdown
-# CLAUDE.md
-@DEVELOPMENT_STANDARDS.md
-@RULES.md
-@MODE_Brainstorming.md
-```
-
-Each `@import` injects the referenced file's content into every session. This is how standards, modes, and behavioral overrides are applied globally across all projects.
-
-**Agents** (`~/.claude/agents/`) and **slash commands** (`~/.claude/commands/`) are loaded automatically by Claude Code — no imports needed in CLAUDE.md.
-
----
-
 ## Installation
 
-### Step 1 — Install SuperClaude (framework dependency)
+### Claude Code setup
 
-This config is designed to extend SuperClaude. Install it first:
+#### Step 1 — Install SuperClaude (framework dependency)
 
 ```bash
 git clone https://github.com/NickAltmann/SuperClaude.git /tmp/superclaude
@@ -52,66 +47,44 @@ cd /tmp/superclaude
 ./install.sh
 ```
 
-This creates `~/.claude/CLAUDE.md` with the base framework imports and populates `~/.claude/commands/sc/` with the built-in skills.
-
 > If you prefer not to use SuperClaude, skip this step — the custom agents and `/sc:commit` command will still work. You will just need to create `~/.claude/CLAUDE.md` manually (see below).
 
-### Step 2 — Clone this repository
+#### Step 2 — Copy files
 
 ```bash
-git clone https://github.com/rogercastaneda/claude-code-config.git
-cd claude-code-config
-```
-
-### Step 3 — Copy files to `~/.claude/`
-
-```bash
-# Standards and behavioral overrides → go directly in ~/.claude/
+# Standards and behavioral overrides
 cp standards/* ~/.claude/
 
-# Behavioral modes → go directly in ~/.claude/
+# Behavioral modes
 cp modes/* ~/.claude/
 
-# MCP integration guides (engram, claude-mem, caveman, token-savior, serena, etc.) → go directly in ~/.claude/
+# MCP integration guides
 cp mcp-docs/* ~/.claude/
 
-# Custom agents → ~/.claude/agents/
+# Custom agents
 mkdir -p ~/.claude/agents
 cp agents/* ~/.claude/agents/
 
-# Custom slash commands → ~/.claude/commands/sc/
+# Slash commands
 mkdir -p ~/.claude/commands/sc
 cp commands/sc/* ~/.claude/commands/sc/
-
-# Root-level commands → ~/.claude/commands/
 cp commands/*.md ~/.claude/commands/ 2>/dev/null || true
 
-# Skills → ~/.claude/skills/
+# Skills
 for dir in skills/*/; do
   skill_name=$(basename "$dir")
   mkdir -p ~/.claude/skills/"$skill_name"
   cp "$dir"* ~/.claude/skills/"$skill_name"/
 done
 
-# Statusline script → ~/.claude/
+# Statusline script
 cp scripts/statusline-command.sh ~/.claude/
 chmod +x ~/.claude/statusline-command.sh
 ```
 
-Then add to `~/.claude/settings.json`:
+#### Step 3 — Register files in CLAUDE.md
 
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline-command.sh"
-  }
-}
-```
-
-### Step 4 — Register files in CLAUDE.md
-
-Open `~/.claude/CLAUDE.md` and add imports for the files copied in Step 3. Add them in the appropriate section (or append at the end):
+Open `~/.claude/CLAUDE.md` and add imports for the files copied above:
 
 ```markdown
 # Development Standards
@@ -143,9 +116,18 @@ Open `~/.claude/CLAUDE.md` and add imports for the files copied in Step 3. Add t
 
 > Files in `agents/` and `commands/` do **not** need to be imported in CLAUDE.md. They are picked up automatically.
 
-### Step 5 — Install gentle-ai plugins (optional but recommended)
+Then add to `~/.claude/settings.json`:
 
-gentle-ai adds persistent memory (engram), codebase exploration (claude-mem), and compressed communication (caveman):
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline-command.sh"
+  }
+}
+```
+
+#### Step 4 — Install gentle-ai plugins (optional but recommended)
 
 ```bash
 # engram — persistent memory across sessions
@@ -160,25 +142,42 @@ claude plugin marketplace add JuliusBrussee/caveman
 claude plugin install caveman@caveman
 ```
 
-### Step 6 — Verify the installation
-
-Start a new Claude Code session and run:
+#### Step 5 — Verify
 
 ```
-/sc:help
+/sc:help      # should list /sc:commit
+/sc:agent     # should show functional-code-expert and git-ticket-agent
 ```
 
-You should see `/sc:commit` listed among the available commands. To verify agents are loaded:
+---
 
+### Kimi Code CLI setup
+
+```bash
+mkdir -p ~/.kimi
+
+# Copy config files
+cp kimi/config.toml ~/.kimi/
+cp kimi/mcp.json ~/.kimi/
+cp kimi/kimi.json ~/.kimi/
+
+# Copy skills
+for dir in kimi/skills/*/; do
+  skill_name=$(basename "$dir")
+  mkdir -p ~/.kimi/skills/"$skill_name"
+  cp "$dir"SKILL.md ~/.kimi/skills/"$skill_name"/
+done
 ```
-/sc:agent
-```
 
-The `functional-code-expert` and `git-ticket-agent` should appear in the list.
+> **Note:** `config.toml` uses OAuth for API authentication. The first run will prompt for login. No API keys are stored in these files.
 
-### Step 7 — Bootstrap each new project
+See [`kimi/README.md`](kimi/README.md) for full Kimi configuration details.
 
-At the start of each new project, run:
+---
+
+### Bootstrap a new project (both assistants)
+
+At the start of each new project, run in a Claude Code session:
 
 ```
 /init-project
@@ -188,11 +187,21 @@ This initializes gentle-ai for that project: detects the stack, builds the skill
 
 ---
 
-## What's included
+## Repository structure
+
+### Standards (`standards/`)
+
+| File | Purpose |
+|------|---------|
+| `DEVELOPMENT_STANDARDS.md` | Functional programming rules, git commit standards, security rules |
+| `OVERRIDES.md` | Highest-priority rules that override default assistant behavior |
+| `PRINCIPLES.md` | Core software engineering philosophy (SOLID, DRY, YAGNI) |
+| `RULES.md` | Actionable behavioral rules with priority levels |
+| `FLAGS.md` | Mode activation flags (`--think`, `--brainstorm`, etc.) |
 
 ### Kimi (`kimi/`)
 
-Configuration files for [Kimi Code CLI](https://kimi.com/code) — the same ecosystem of rules, MCPs, and skills applied to the Kimi agent.
+Configuration files for Kimi Code CLI — the same ecosystem of rules, MCPs, and skills applied to the Kimi agent.
 
 | File | Purpose |
 |------|---------|
@@ -200,21 +209,11 @@ Configuration files for [Kimi Code CLI](https://kimi.com/code) — the same ecos
 | `mcp.json` | MCP servers: engram, context7, rovo |
 | `kimi.json` | Work directory registry |
 
-See [`kimi/README.md`](kimi/README.md) for full details and installation instructions.
-
-### Standards (`standards/`)
-
-| File | Purpose |
-|------|---------|
-| `DEVELOPMENT_STANDARDS.md` | Functional programming rules, git commit standards, security rules |
-| `OVERRIDES.md` | Highest-priority rules that override Claude Code defaults |
-| `PRINCIPLES.md` | Core software engineering philosophy (SOLID, DRY, YAGNI) |
-| `RULES.md` | Actionable behavioral rules with priority levels |
-| `FLAGS.md` | Mode activation flags (`--think`, `--brainstorm`, etc.) |
+See [`kimi/README.md`](kimi/README.md) for full details.
 
 ### Skills (`skills/`)
 
-Skills are picked up by `/skill-registry` and their compact rules get injected into every sub-agent. This is the primary enforcement mechanism for global rules.
+Skills are picked up by `/skill-registry` (Claude) or injected into context (Kimi) so their compact rules apply to every sub-agent.
 
 | Skill | Purpose |
 |-------|---------|
@@ -255,18 +254,18 @@ Agents run as isolated subprocesses to keep the main context window clean.
 
 ### No auto-execution without approval
 
-Claude Code will **never** run these automatically — it will always propose and wait:
+These assistants **never** run destructive actions automatically — they always propose and wait for approval:
 
 - Git commits and pushes
 - Build commands (`npm run build`, `yarn build`, etc.)
 - Dev servers (`npm run dev`, `uvicorn`, etc.)
 - Package installs or migrations
 
-After completing changes, Claude stops and reports what changed. It does **not** suggest committing. You request it explicitly.
+After completing changes, the assistant stops and reports what changed. It does **not** suggest committing. You request it explicitly.
 
 ### Bare commands — no absolute paths
 
-When working inside a project directory, Claude runs commands bare:
+When working inside a project directory, commands run bare:
 
 ```bash
 # ✅ Correct
@@ -380,6 +379,18 @@ Configure via `claude mcp add -s user` or editing `~/.claude.json`.
 claude mcp add token-savior -s user -- uvx --from "token-savior-recall[mcp]" token-savior
 ```
 
+#### Disable Google MCPs
+
+Claude Code ships with Gmail, Google Calendar, and Google Drive MCPs pre-configured. Disable them in `~/.claude.json` to avoid constant auth prompts:
+
+```json
+"disabledMcpServers": [
+  "claude.ai Gmail",
+  "claude.ai Google Calendar",
+  "claude.ai Google Drive"
+]
+```
+
 ### MCP servers — Kimi Code CLI
 
 Configure via `kimi mcp add` or editing `~/.kimi/mcp.json`.
@@ -396,19 +407,7 @@ kimi mcp add context7 --url https://mcp.context7.com/mcp
 kimi mcp add rovo --stdio -- npx -y mcp-remote@latest https://mcp.atlassian.com/v1/mcp
 ```
 
-#### Disable Google MCPs
-
-Claude Code ships with Gmail, Google Calendar, and Google Drive MCPs pre-configured. Disable them in `~/.claude.json` to avoid constant auth prompts:
-
-```json
-"disabledMcpServers": [
-  "claude.ai Gmail",
-  "claude.ai Google Calendar",
-  "claude.ai Google Drive"
-]
-```
-
-### Plugins
+### Plugins (Claude Code only)
 
 | Plugin | Source | Purpose |
 |--------|--------|---------|
@@ -437,7 +436,7 @@ Caveman activates automatically each session. Switch modes with `/caveman lite`,
 
 ## Global vs per-project configuration
 
-**Global** (`~/.claude/`): Rules that apply to every project — coding standards, git conventions, agents, slash commands. This is where everything in this repo goes.
+**Global** (`~/.claude/` and `~/.kimi/`): Rules that apply to every project — coding standards, git conventions, agents, slash commands, MCPs.
 
 **Per-project** (`.claude/CLAUDE.md` in the project root): Project-specific overrides — tech stack, local file conventions, specific patterns for that codebase. Run `/init-project` at the start of each new project to bootstrap Engram memory and the skill registry for that specific codebase. Example:
 
@@ -457,6 +456,7 @@ Per-project files take precedence over global ones when there's a conflict.
 - **Add your own agents**: create a `.md` file in `~/.claude/agents/` with a YAML frontmatter block (`name`, `description`, `model`, `color`) followed by the agent's instructions.
 - **Add your own commands**: create a `.md` file in `~/.claude/commands/sc/` — it becomes available as `/sc:<filename>`.
 - **Adjust standards**: edit `~/.claude/DEVELOPMENT_STANDARDS.md` directly. Changes take effect in the next Claude Code session.
+- **Adjust Kimi settings**: edit `~/.kimi/config.toml` or `~/.kimi/mcp.json` directly.
 
 ---
 
