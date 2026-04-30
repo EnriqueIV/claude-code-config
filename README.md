@@ -363,7 +363,7 @@ for (let i = 0; i < users.length; i++) {
 
 ## MCPs & Plugins
 
-### MCP servers
+### MCP servers — Claude Code
 
 Configure via `claude mcp add -s user` or editing `~/.claude.json`.
 
@@ -378,6 +378,22 @@ Configure via `claude mcp add -s user` or editing `~/.claude.json`.
 
 ```bash
 claude mcp add token-savior -s user -- uvx --from "token-savior-recall[mcp]" token-savior
+```
+
+### MCP servers — Kimi Code CLI
+
+Configure via `kimi mcp add` or editing `~/.kimi/mcp.json`.
+
+| MCP | Transport | Command / URL | Purpose |
+|-----|-----------|---------------|---------|
+| `engram` | stdio | `engram mcp --tools=agent` | Persistent memory across sessions |
+| `context7` | HTTP | `https://mcp.context7.com/mcp` | Official library documentation |
+| `rovo` | stdio | `npx -y mcp-remote@latest https://mcp.atlassian.com/v1/mcp` | Atlassian Jira/Confluence integration |
+
+```bash
+kimi mcp add engram --stdio -- engram mcp --tools=agent
+kimi mcp add context7 --url https://mcp.context7.com/mcp
+kimi mcp add rovo --stdio -- npx -y mcp-remote@latest https://mcp.atlassian.com/v1/mcp
 ```
 
 #### Disable Google MCPs
