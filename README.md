@@ -444,38 +444,42 @@ for (let i = 0; i < users.length; i++) {
 
 ### MCP servers — Claude Code
 
-Configure via `claude mcp add -s user` or editing `~/.claude.json`.
+Configure via `claude mcp add -s user`. Active MCPs:
 
-| MCP | Command | Purpose |
-|-----|---------|---------|
-| `token-savior` | `uvx --from "token-savior-recall[mcp]" token-savior` | Codebase analysis, semantic memory, token reduction |
-| `context7` | `npx -y @upstash/context7-mcp` | Official library documentation |
-| `sequential-thinking` | `npx -y @modelcontextprotocol/server-sequential-thinking` | Structured multi-step reasoning |
-| `playwright` | `npx -y @playwright/mcp@latest` | Browser automation and E2E testing |
-| `chrome-devtools` | `npx -y chrome-devtools-mcp@latest` | Chrome DevTools automation |
-| `code-review-graph` | `uvx code-review-graph serve` | AST-based codebase graph — blast radius, callers, test coverage (8x token reduction) |
+| MCP | Install command | Purpose |
+|-----|----------------|---------|
+| `context7` | `claude mcp add context7 -s user -- npx -y @upstash/context7-mcp` | Official library documentation |
+| `code-review-graph` | see below | AST-based codebase graph — blast radius, callers, test coverage |
 
 ```bash
-claude mcp add token-savior -s user -- uvx --from "token-savior-recall[mcp]" token-savior
-```
+# context7
+claude mcp add context7 -s user -- npx -y @upstash/context7-mcp
 
-`code-review-graph` installs via its own CLI:
-```bash
+# code-review-graph (install binary first, then register globally)
 uv tool install code-review-graph
-code-review-graph install --platform claude-code
+claude mcp add code-review-graph -s user -- uvx code-review-graph serve
 ```
 
-#### Disable Google MCPs
+> **Do NOT** run `code-review-graph install --platform claude-code` — that's project-scoped and litters `.mcp.json`, `CLAUDE.md`, `.claude/skills/` into the current directory.
 
-Claude Code ships with Gmail, Google Calendar, and Google Drive MCPs pre-configured. Disable them in `~/.claude.json` to avoid constant auth prompts:
+Then in each project, ask Claude: *"Build the code review graph for this project"*
 
-```json
-"disabledMcpServers": [
-  "claude.ai Gmail",
-  "claude.ai Google Calendar",
-  "claude.ai Google Drive"
-]
-```
+#### MCPs intentionally NOT installed
+
+These were removed after profiling startup context (each adds tools to every session):
+
+| MCP | Why removed |
+|-----|-------------|
+| `token-savior` | 50 tools in deferred list; `claude-mem` plugin covers exploration |
+| `chrome-devtools` | 30 tools; not used regularly |
+| `playwright` | 20 tools; not used regularly |
+| `sequential-thinking` | Adds overhead; native reasoning sufficient |
+
+#### Disconnect Google MCPs
+
+If you connected Gmail, Google Calendar, or Google Drive through claude.ai, disconnect them — they inject auth errors into every session's context and add startup overhead.
+
+Go to **claude.ai → Settings → Integrations** and disconnect all three. There is no local config to edit; these are account-level.
 
 ### MCP servers — Kimi Code CLI
 
