@@ -78,27 +78,29 @@ chmod +x ~/.claude/statusline-command.sh
 Open `~/.claude/CLAUDE.md` and add imports for the files copied above:
 
 ```markdown
-# Development Standards
-@DEVELOPMENT_STANDARDS.md
-@OVERRIDES.md
+# Core — always loaded (~568 lines, ~9k tokens)
 @PRINCIPLES.md
 @RULES.md
-@FLAGS.md
+@DEVELOPMENT_STANDARDS.md
 
-# Behavioral Modes
-@MODE_Brainstorming.md
-@MODE_DeepResearch.md
-@MODE_Introspection.md
-@MODE_Orchestration.md
-@MODE_Task_Management.md
-@MODE_Token_Efficiency.md
+# Behavioral Modes — comment out to reduce startup token cost
+# @FLAGS.md
+# @MODE_Brainstorming.md
+# @MODE_DeepResearch.md
+# @MODE_Introspection.md
+# @MODE_Orchestration.md
+# @MODE_Task_Management.md
+# @MODE_Token_Efficiency.md
 
-# MCP Documentation
-@MCP_Context7.md
-@MCP_Playwright.md
-@MCP_Sequential.md
-@MCP_TokenSavior.md
+# MCP Documentation — comment out to reduce startup token cost
+# (plugins are self-documenting via system-reminder at runtime)
+# @MCP_Context7.md
+# @MCP_Playwright.md
+# @MCP_Sequential.md
+# @MCP_TokenSavior.md
 ```
+
+> **Token cost note:** Loading all MODE_*.md and MCP_*.md files adds ~750 extra lines (~12k tokens) at every session start. Keep them commented unless you need the detailed guidance.
 
 > Files in `agents/` and `commands/` do **not** need to be imported in CLAUDE.md. They are picked up automatically.
 
