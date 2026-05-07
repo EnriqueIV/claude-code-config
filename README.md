@@ -137,9 +137,15 @@ claude plugin install warp@claude-code-warp
 Builds a structural AST graph of your codebase. Reduces token usage 8x on average for code review and exploration tasks.
 
 ```bash
-pip install code-review-graph   # or: pipx install / uv tool install
-code-review-graph install --platform claude-code
+# 1. Install the binary
+uv tool install code-review-graph
+# (or: pipx install code-review-graph)
+
+# 2. Register the MCP globally — writes to ~/.claude.json, run from anywhere
+claude mcp add code-review-graph -s user -- uvx code-review-graph serve
 ```
+
+> **Do NOT** run `code-review-graph install --platform claude-code` for global setup — that command is project-scoped and creates `.mcp.json`, `CLAUDE.md`, and `.claude/skills/` inside the current directory.
 
 Then in each project, ask Claude: *"Build the code review graph for this project"*
 
@@ -149,6 +155,75 @@ Then in each project, ask Claude: *"Build the code review graph for this project
 /sc:commit --help   # should show ticket-aware commit options
 /init-project       # should detect project and save conventions to Engram
 ```
+
+---
+
+### Migrating from SuperClaude or gentle-ai
+
+If you previously used SuperClaude or gentle-ai, clean up before installing this config.
+
+#### Uninstall SuperClaude
+
+```bash
+pipx uninstall superclaude
+```
+
+If installed via `git clone + ./install.sh` instead, remove its files manually:
+
+```bash
+# Framework files
+rm -f ~/.claude/BUSINESS_PANEL_EXAMPLES.md \
+      ~/.claude/BUSINESS_SYMBOLS.md \
+      ~/.claude/RESEARCH_CONFIG.md \
+      ~/.claude/.superclaude-metadata.json
+
+# Extra sc:* commands (keep only commit.md)
+cd ~/.claude/commands/sc
+ls *.md | grep -v '^commit\.md$' | xargs -r rm -f
+
+# Extra agents (keep only functional-code-expert + git-ticket-agent)
+cd ~/.claude/agents
+ls *.md | grep -vE '^(functional-code-expert|git-ticket-agent)\.md$' | xargs -r rm -f
+```
+
+#### Uninstall gentle-ai
+
+```bash
+brew uninstall gentle-ai        # macOS/Linux
+# scoop uninstall gentle-ai     # Windows
+```
+
+Then remove the files it left behind:
+
+```bash
+# Skills
+rm -rf ~/.claude/skills/sdd-apply \
+       ~/.claude/skills/sdd-archive \
+       ~/.claude/skills/sdd-design \
+       ~/.claude/skills/sdd-explore \
+       ~/.claude/skills/sdd-init \
+       ~/.claude/skills/sdd-onboard \
+       ~/.claude/skills/sdd-propose \
+       ~/.claude/skills/sdd-spec \
+       ~/.claude/skills/sdd-tasks \
+       ~/.claude/skills/sdd-verify \
+       ~/.claude/skills/_shared \
+       ~/.claude/skills/branch-pr \
+       ~/.claude/skills/issue-creation \
+       ~/.claude/skills/judgment-day \
+       ~/.claude/skills/skill-creator \
+       ~/.claude/skills/skill-registry
+
+# Agents
+rm -f ~/.claude/agents/sdd-*.md
+
+# Top-level commands
+rm -f ~/.claude/commands/sdd-*.md
+```
+
+Then rewrite `~/.claude/CLAUDE.md` — replace whatever SuperClaude/gentle-ai injected with only the imports listed in Step 2 above.
+
+> **Keep engram** (`claude plugin install engram@engram`) — it's independent of both frameworks and works with this config.
 
 ---
 
