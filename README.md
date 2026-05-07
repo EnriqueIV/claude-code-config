@@ -2,7 +2,7 @@
 
 Personal configuration for [Claude Code](https://claude.ai/code) and [Kimi Code CLI](https://kimi.com/code).
 
-Enforces functional programming standards, ticket-aware git workflows, and professional commit conventions across both assistants. The Claude Code side is designed to work on top of the [SuperClaude](https://github.com/NickAltmann/SuperClaude) framework.
+Enforces functional programming standards, ticket-aware git workflows, and professional commit conventions across both assistants.
 
 > **Why both?** Claude Code excels at deep reasoning and agentic workflows. Kimi k2.6 brings a 262K context window and fast thinking-mode streaming. This repo keeps both tools configured with the same standards so you get consistent behavior regardless of which one you open.
 
@@ -15,7 +15,7 @@ Enforces functional programming standards, ticket-aware git workflows, and profe
 | **Claude Code** | `standards/`, `modes/`, `agents/`, `commands/`, `skills/` | `~/.claude/CLAUDE.md` |
 | **Kimi Code CLI** | `kimi/` | `~/.kimi/config.toml` + `~/.kimi/mcp.json` |
 
-Shared standards (functional programming, git conventions, MCPs) are applied to both. Claude-specific extras (agents, slash commands, gentle-ai plugins) live in the root folders. Kimi-specific config lives under `kimi/`.
+Shared standards (functional programming, git conventions, MCPs) are applied to both. Claude-specific extras (agents, slash commands, plugins) live in the root folders. Kimi-specific config lives under `kimi/`.
 
 ---
 
@@ -39,17 +39,7 @@ Shared standards (functional programming, git conventions, MCPs) are applied to 
 
 ### Claude Code setup
 
-#### Step 1 — Install SuperClaude (framework dependency)
-
-```bash
-git clone https://github.com/NickAltmann/SuperClaude.git /tmp/superclaude
-cd /tmp/superclaude
-./install.sh
-```
-
-> If you prefer not to use SuperClaude, skip this step — the custom agents and `/sc:commit` command will still work. You will just need to create `~/.claude/CLAUDE.md` manually (see below).
-
-#### Step 2 — Copy files
+#### Step 1 — Copy files
 
 ```bash
 # Standards and behavioral overrides
@@ -71,6 +61,7 @@ cp commands/sc/* ~/.claude/commands/sc/
 cp commands/*.md ~/.claude/commands/ 2>/dev/null || true
 
 # Skills
+cp skills/*.md ~/.claude/skills/ 2>/dev/null || true
 for dir in skills/*/; do
   skill_name=$(basename "$dir")
   mkdir -p ~/.claude/skills/"$skill_name"
@@ -82,7 +73,7 @@ cp scripts/statusline-command.sh ~/.claude/
 chmod +x ~/.claude/statusline-command.sh
 ```
 
-#### Step 3 — Register files in CLAUDE.md
+#### Step 2 — Register files in CLAUDE.md
 
 Open `~/.claude/CLAUDE.md` and add imports for the files copied above:
 
@@ -96,7 +87,6 @@ Open `~/.claude/CLAUDE.md` and add imports for the files copied above:
 
 # Behavioral Modes
 @MODE_Brainstorming.md
-@MODE_Business_Panel.md
 @MODE_DeepResearch.md
 @MODE_Introspection.md
 @MODE_Orchestration.md
@@ -104,13 +94,9 @@ Open `~/.claude/CLAUDE.md` and add imports for the files copied above:
 @MODE_Token_Efficiency.md
 
 # MCP Documentation
-@MCP_Caveman.md
-@MCP_ClaudeMem.md
 @MCP_Context7.md
-@MCP_Engram.md
 @MCP_Playwright.md
 @MCP_Sequential.md
-@MCP_Serena.md
 @MCP_TokenSavior.md
 ```
 
@@ -127,7 +113,7 @@ Then add to `~/.claude/settings.json`:
 }
 ```
 
-#### Step 4 — Install gentle-ai plugins (optional but recommended)
+#### Step 3 — Install plugins
 
 ```bash
 # engram — persistent memory across sessions
@@ -140,13 +126,28 @@ claude plugin install claude-mem@thedotmack
 # caveman — ultra-compressed communication mode
 claude plugin marketplace add JuliusBrussee/caveman
 claude plugin install caveman@caveman
+
+# warp — native Warp terminal integration (skip if not using Warp)
+claude plugin marketplace add warpdotdev/claude-code-warp
+claude plugin install warp@claude-code-warp
 ```
+
+#### Step 4 — Install code-review-graph MCP (optional)
+
+Builds a structural AST graph of your codebase. Reduces token usage 8x on average for code review and exploration tasks.
+
+```bash
+pip install code-review-graph   # or: pipx install / uv tool install
+code-review-graph install --platform claude-code
+```
+
+Then in each project, ask Claude: *"Build the code review graph for this project"*
 
 #### Step 5 — Verify
 
 ```
-/sc:help      # should list /sc:commit
-/sc:agent     # should show functional-code-expert and git-ticket-agent
+/sc:commit --help   # should show ticket-aware commit options
+/init-project       # should detect project and save conventions to Engram
 ```
 
 ---
@@ -175,7 +176,7 @@ See [`kimi/README.md`](kimi/README.md) for full Kimi configuration details.
 
 ---
 
-### Bootstrap a new project (both assistants)
+### Bootstrap a new project
 
 At the start of each new project, run in a Claude Code session:
 
@@ -183,7 +184,7 @@ At the start of each new project, run in a Claude Code session:
 /init-project
 ```
 
-This initializes gentle-ai for that project: detects the stack, builds the skill registry (so rules are injected into sub-agents), and persists critical workflow rules to Engram memory. Run it once per project.
+Detects the project name and persists critical workflow rules to Engram memory (commit conventions, command path rules, no-auto-build rule). Run once per project.
 
 ---
 
@@ -193,7 +194,7 @@ This initializes gentle-ai for that project: detects the stack, builds the skill
 
 | File | Purpose |
 |------|---------|
-| `DEVELOPMENT_STANDARDS.md` | Functional programming rules, git commit standards, security rules |
+| `DEVELOPMENT_STANDARDS.md` | Behavioral rules, functional programming standards, git commit conventions, security rules |
 | `OVERRIDES.md` | Highest-priority rules that override default assistant behavior |
 | `PRINCIPLES.md` | Core software engineering philosophy (SOLID, DRY, YAGNI) |
 | `RULES.md` | Actionable behavioral rules with priority levels |
@@ -213,11 +214,13 @@ See [`kimi/README.md`](kimi/README.md) for full details.
 
 ### Skills (`skills/`)
 
-Skills are picked up by `/skill-registry` (Claude) or injected into context (Kimi) so their compact rules apply to every sub-agent.
-
 | Skill | Purpose |
 |-------|---------|
-| `project-conventions` | Enforces commit flow (`/sc:commit` only), bare commands (no absolute paths), and post-change behavior (no proactive commit suggestions) |
+| `project-conventions` | Enforces commit flow (`/sc:commit` only), bare commands (no absolute paths), post-change behavior |
+| `debug-issue.md` | Graph-aware debugging workflow using code-review-graph blast-radius analysis |
+| `explore-codebase.md` | Graph-aware codebase exploration (semantic search + community overview) |
+| `refactor-safely.md` | Graph-aware refactoring with impact analysis before making changes |
+| `review-changes.md` | Graph-aware code review using `detect_changes` + `get_review_context` |
 
 ### Agents (`agents/`)
 
@@ -246,7 +249,7 @@ Agents run as isolated subprocesses to keep the main context window clean.
 
 | Command | Usage |
 |---------|-------|
-| `/init-project` | Bootstrap gentle-ai for a new project — run once per project |
+| `/init-project` | Save project workflow conventions to Engram — run once per project |
 
 ---
 
@@ -373,10 +376,16 @@ Configure via `claude mcp add -s user` or editing `~/.claude.json`.
 | `sequential-thinking` | `npx -y @modelcontextprotocol/server-sequential-thinking` | Structured multi-step reasoning |
 | `playwright` | `npx -y @playwright/mcp@latest` | Browser automation and E2E testing |
 | `chrome-devtools` | `npx -y chrome-devtools-mcp@latest` | Chrome DevTools automation |
-| `serena` | see [serena docs](https://github.com/oraios/serena) | Semantic code navigation, symbol operations, session persistence |
+| `code-review-graph` | `uvx code-review-graph serve` | AST-based codebase graph — blast radius, callers, test coverage (8x token reduction) |
 
 ```bash
 claude mcp add token-savior -s user -- uvx --from "token-savior-recall[mcp]" token-savior
+```
+
+`code-review-graph` installs via its own CLI:
+```bash
+uv tool install code-review-graph
+code-review-graph install --platform claude-code
 ```
 
 #### Disable Google MCPs
@@ -411,9 +420,10 @@ kimi mcp add rovo --stdio -- npx -y mcp-remote@latest https://mcp.atlassian.com/
 
 | Plugin | Source | Purpose |
 |--------|--------|---------|
-| `engram@engram` | official marketplace | Persistent memory across sessions — saves decisions, bugs, conventions |
+| `engram@engram` | [Gentleman-Programming/engram](https://github.com/Gentleman-Programming/engram) | Persistent memory across sessions — saves decisions, bugs, conventions |
 | `claude-mem@thedotmack` | [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | Codebase exploration via AST + planning skills (`smart-explore`, `make-plan`, `do`) |
 | `caveman@caveman` | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | Ultra-compressed communication mode (~75% token reduction) |
+| `warp@claude-code-warp` | [warpdotdev/claude-code-warp](https://github.com/warpdotdev/claude-code-warp) | Native Warp terminal integration — desktop notifications, rich input, tab metadata |
 
 > **engram vs claude-mem**: engram stores facts (memory), claude-mem navigates code (exploration). They complement each other.
 
@@ -428,6 +438,10 @@ claude plugin install claude-mem@thedotmack
 # caveman
 claude plugin marketplace add JuliusBrussee/caveman
 claude plugin install caveman@caveman
+
+# warp (skip if not using Warp terminal)
+claude plugin marketplace add warpdotdev/claude-code-warp
+claude plugin install warp@claude-code-warp
 ```
 
 Caveman activates automatically each session. Switch modes with `/caveman lite`, `/caveman ultra`, or `stop caveman`.
@@ -438,7 +452,7 @@ Caveman activates automatically each session. Switch modes with `/caveman lite`,
 
 **Global** (`~/.claude/` and `~/.kimi/`): Rules that apply to every project — coding standards, git conventions, agents, slash commands, MCPs.
 
-**Per-project** (`.claude/CLAUDE.md` in the project root): Project-specific overrides — tech stack, local file conventions, specific patterns for that codebase. Run `/init-project` at the start of each new project to bootstrap Engram memory and the skill registry for that specific codebase. Example:
+**Per-project** (`.claude/CLAUDE.md` in the project root): Project-specific overrides — tech stack, local file conventions, specific patterns for that codebase. Run `/init-project` at the start of each new project to bootstrap Engram memory for that specific codebase. Example:
 
 ```markdown
 # .claude/CLAUDE.md (in your project root)
